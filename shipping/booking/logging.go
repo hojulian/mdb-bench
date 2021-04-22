@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-kit/kit/log"
 
-	"github.com/go-kit/kit/examples/shipping/cargo"
-	"github.com/go-kit/kit/examples/shipping/location"
+	"github.com/hojulian/mdb-bench/shipping/cargo"
+	"github.com/hojulian/mdb-bench/shipping/location"
 )
 
 type loggingService struct {

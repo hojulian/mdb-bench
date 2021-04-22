@@ -8,7 +8,7 @@ import (
 
 	"github.com/pborman/uuid"
 
-	"github.com/go-kit/kit/examples/shipping/location"
+	"github.com/hojulian/mdb-bench/shipping/location"
 )
 
 // TrackingID uniquely identifies a particular cargo.

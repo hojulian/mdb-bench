@@ -6,9 +6,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/go-kit/kit/examples/shipping/cargo"
-	"github.com/go-kit/kit/examples/shipping/location"
-	"github.com/go-kit/kit/examples/shipping/routing"
+	"github.com/hojulian/mdb-bench/shipping/cargo"
+	"github.com/hojulian/mdb-bench/shipping/location"
+	"github.com/hojulian/mdb-bench/shipping/routing"
 )
 
 // ErrInvalidArgument is returned when one or more arguments are invalid.
