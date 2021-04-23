@@ -90,7 +90,7 @@ func (r *cargoRepository) Store(c *cargo.Cargo) error {
 func (r *cargoRepository) Find(id cargo.TrackingID) (*cargo.Cargo, error) {
 	var cg cargo.Cargo
 
-	res := r.db.First(&cg, id)
+	res := r.db.Find(&cg, id)
 	if err := res.Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve cargo: %w", err)
 	}
@@ -126,7 +126,7 @@ func NewLocationRepository(db *gorm.DB) location.Repository {
 func (r *locationRepository) Find(locode location.UNLocode) (*location.Location, error) {
 	var loc location.Location
 
-	res := r.db.First(&loc, locode)
+	res := r.db.Find(&loc, locode)
 	if err := res.Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve location: %w", err)
 	}
@@ -171,7 +171,7 @@ func NewVoyageRepository(db *gorm.DB) voyage.Repository {
 func (r *voyageRepository) Find(number voyage.Number) (*voyage.Voyage, error) {
 	var voy voyage.Voyage
 
-	res := r.db.First(&voy, number)
+	res := r.db.Find(&voy, number)
 	if err := res.Error; err != nil {
 		return nil, fmt.Errorf("failed to retrieve voyage: %w", err)
 	}
@@ -194,7 +194,7 @@ func (r *handlingEventRepository) Store(e cargo.HandlingEvent) {
 func (r *handlingEventRepository) QueryHandlingHistory(id cargo.TrackingID) cargo.HandlingHistory {
 	var evts []cargo.HandlingEvent
 
-	res := r.db.First(&evts, id)
+	res := r.db.Find(&evts, id)
 	if err := res.Error; err != nil {
 		panic(fmt.Errorf("failed to retrieve handling events: %w", err))
 	}
