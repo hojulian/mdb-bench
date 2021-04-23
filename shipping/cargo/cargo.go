@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/pborman/uuid"
+	"gorm.io/gorm"
 
 	"github.com/hojulian/mdb-bench/shipping/location"
 )
@@ -16,11 +17,14 @@ type TrackingID string
 
 // Cargo is the central class in the domain model.
 type Cargo struct {
-	TrackingID         TrackingID
-	Origin             location.UNLocode
-	RouteSpecification RouteSpecification
-	Itinerary          Itinerary
-	Delivery           Delivery
+	TrackingID           TrackingID `gorm:"primaryKey"`
+	Origin               location.UNLocode
+	RouteSpecificationID int
+	RouteSpecification   RouteSpecification `gorm:"foreignKey:RouteSpecificationID"`
+	ItineraryID          int
+	Itinerary            Itinerary `gorm:"foreignKey:ItineraryID"`
+	DeliveryID           int
+	Delivery             Delivery `gorm:"foreignKey:DeliveryID"`
 }
 
 // SpecifyNewRoute specifies a new route for this cargo.
@@ -73,6 +77,7 @@ func NextTrackingID() TrackingID {
 // RouteSpecification Contains information about a route: its origin,
 // destination and arrival deadline.
 type RouteSpecification struct {
+	gorm.Model
 	Origin          location.UNLocode
 	Destination     location.UNLocode
 	ArrivalDeadline time.Time

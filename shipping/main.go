@@ -18,8 +18,8 @@ import (
 
 	"github.com/hojulian/mdb-bench/shipping/booking"
 	"github.com/hojulian/mdb-bench/shipping/cargo"
+	"github.com/hojulian/mdb-bench/shipping/database/inmem"
 	"github.com/hojulian/mdb-bench/shipping/handling"
-	"github.com/hojulian/mdb-bench/shipping/inmem"
 	"github.com/hojulian/mdb-bench/shipping/inspection"
 	"github.com/hojulian/mdb-bench/shipping/location"
 	"github.com/hojulian/mdb-bench/shipping/routing"

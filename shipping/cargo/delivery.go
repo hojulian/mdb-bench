@@ -3,6 +3,8 @@ package cargo
 import (
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/hojulian/mdb-bench/shipping/location"
 	"github.com/hojulian/mdb-bench/shipping/voyage"
 )
@@ -10,15 +12,20 @@ import (
 // Delivery is the actual transportation of the cargo, as opposed to the
 // customer requirement (RouteSpecification) and the plan (Itinerary).
 type Delivery struct {
-	Itinerary               Itinerary
-	RouteSpecification      RouteSpecification
+	gorm.Model
+	ItineraryID             int
+	Itinerary               Itinerary `gorm:"foreignKey:ItineraryID"`
+	RouteSpecificationID    int
+	RouteSpecification      RouteSpecification `gorm:"foreignKey:RouteSpecificationID"`
 	RoutingStatus           RoutingStatus
 	TransportStatus         TransportStatus
-	NextExpectedActivity    HandlingActivity
-	LastEvent               HandlingEvent
+	NextExpectedActivityID  int
+	NextExpectedActivity    HandlingActivity `gorm:"foreignKey:NextExpectedActivityID"`
+	LastEventID             int
+	LastEvent               HandlingEvent `gorm:"foreignKey:LastEventID"`
 	LastKnownLocation       location.UNLocode
 	CurrentVoyage           voyage.Number
-	ETA                     time.Time
+	ETA                     time.Time `gorm:"default:null"`
 	IsMisdirected           bool
 	IsUnloadedAtDestination bool
 }

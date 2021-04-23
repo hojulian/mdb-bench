@@ -12,6 +12,8 @@ import (
 	"errors"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/hojulian/mdb-bench/shipping/location"
 	"github.com/hojulian/mdb-bench/shipping/voyage"
 )
@@ -20,6 +22,7 @@ import (
 // be used to express predictions about what is expected to happen to a cargo
 // in the future.
 type HandlingActivity struct {
+	gorm.Model
 	Type         HandlingEventType
 	Location     location.UNLocode
 	VoyageNumber voyage.Number
@@ -28,8 +31,9 @@ type HandlingActivity struct {
 // HandlingEvent is used to register the event when, for instance, a cargo is
 // unloaded from a carrier at a some location at a given time.
 type HandlingEvent struct {
-	TrackingID TrackingID
-	Activity   HandlingActivity
+	TrackingID TrackingID `gorm:"primaryKey"`
+	ActivityID int
+	Activity   HandlingActivity `gorm:"foreignKey:ActivityID"`
 }
 
 // HandlingEventType describes type of a handling event.

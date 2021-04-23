@@ -3,17 +3,21 @@ package cargo
 import (
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/hojulian/mdb-bench/shipping/location"
 	"github.com/hojulian/mdb-bench/shipping/voyage"
 )
 
 // Leg describes the transportation between two locations on a voyage.
 type Leg struct {
+	gorm.Model
 	VoyageNumber   voyage.Number     `json:"voyage_number"`
 	LoadLocation   location.UNLocode `json:"from"`
 	UnloadLocation location.UNLocode `json:"to"`
-	LoadTime       time.Time         `json:"load_time"`
-	UnloadTime     time.Time         `json:"unload_time"`
+	LoadTime       time.Time         `json:"load_time" gorm:"default:null"`
+	UnloadTime     time.Time         `json:"unload_time" gorm:"default:null"`
+	ItineraryRefer uint
 }
 
 // NewLeg creates a new itinerary leg.
@@ -30,7 +34,8 @@ func NewLeg(voyageNumber voyage.Number, loadLocation, unloadLocation location.UN
 // Itinerary specifies steps required to transport a cargo from its origin to
 // destination.
 type Itinerary struct {
-	Legs []Leg `json:"legs"`
+	gorm.Model
+	Legs []Leg `json:"legs" gorm:"foreignKey:ItineraryRefer"`
 }
 
 // InitialDepartureLocation returns the start of the itinerary.

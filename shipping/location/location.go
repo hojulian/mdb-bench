@@ -15,8 +15,8 @@ type UNLocode string
 // Location is a location is our model is stops on a journey, such as cargo
 // origin or destination, or carrier movement endpoints.
 type Location struct {
-	UNLocode UNLocode
-	Name     string
+	UNLocode UNLocode `gorm:"primaryKey"`
+	Name     string   `gorm:"name"`
 }
 
 // ErrUnknown is used when a location could not be found.
