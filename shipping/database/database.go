@@ -302,7 +302,6 @@ func mySQLConnectionCfg(host, port, user, password, database string) string {
 func configureGormDB(db *gorm.DB) *gorm.DB {
 	db = db.Set("gorm:table_options", "DEFAULT CHARSET=utf8")
 	db = db.Clauses(clause.OnConflict{DoNothing: true})
-	db = db.Debug()
 	return db
 }
 
