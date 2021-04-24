@@ -60,5 +60,3 @@ volumes:
 
 networks:
   benchmark:
-    external:
-      name: mysql_benchmark

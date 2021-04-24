@@ -105,6 +105,7 @@ func envString(env, fallback string) string {
 func repos(databaseType string) (cargo.Repository, cargo.HandlingEventRepository, error) {
 	t := database.DatabaseType(databaseType)
 	params := map[string]string{
+		"MYSQL_NODES":     envString("MYSQL_NODES", "2"),
 		"MYSQL_HOST":      envString("MYSQL_HOST", "127.0.0.1"),
 		"MYSQL_PORT":      envString("MYSQL_PORT", "3306"),
 		"MYSQL_USER":      envString("MYSQL_USER", "root"),

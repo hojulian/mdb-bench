@@ -1,0 +1,93 @@
+version: '2.2'
+services:
+  # =================== APP ===================
+  handling:
+    image: microdb/benchmark:handling
+    ports:
+      - '8080'
+    environment:
+      - MYSQL_NODES=3
+      - MYSQL_HOST_0=mysql-master
+      - MYSQL_PORT_0=3306
+      - MYSQL_HOST_1=mysql-replica-1
+      - MYSQL_PORT_1=3306
+      - MYSQL_HOST_2=mysql-replica-2
+      - MYSQL_PORT_2=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=test
+      - MYSQL_DATABASE=test
+    command: --database mysql-cluster
+    networks:
+      - benchmark
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.handling.rule=PathPrefix(`/handling`)"
+      - "traefik.http.routers.handling.entrypoints=web"
+
+  booking:
+    image: microdb/benchmark:booking
+    ports:
+      - '8080'
+    environment:
+      - MYSQL_NODES=3
+      - MYSQL_HOST_0=mysql-master
+      - MYSQL_PORT_0=3306
+      - MYSQL_HOST_1=mysql-replica-1
+      - MYSQL_PORT_1=3306
+      - MYSQL_HOST_2=mysql-replica-2
+      - MYSQL_PORT_2=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=test
+      - MYSQL_DATABASE=test
+    command: --database mysql-cluster
+    networks:
+      - benchmark
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
+      - "traefik.http.routers.booking.entrypoints=web"
+
+  tracking:
+    image: microdb/benchmark:tracking
+    ports:
+      - '8080'
+    environment:
+      - MYSQL_NODES=3
+      - MYSQL_HOST_0=mysql-master
+      - MYSQL_PORT_0=3306
+      - MYSQL_HOST_1=mysql-replica-1
+      - MYSQL_PORT_1=3306
+      - MYSQL_HOST_2=mysql-replica-2
+      - MYSQL_PORT_2=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=test
+      - MYSQL_DATABASE=test
+    command: --database mysql-cluster
+    networks:
+      - benchmark
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
+      - "traefik.http.routers.tracking.entrypoints=web"
+
+  # ================= GATEWAY =================
+  gateway:
+    image: "traefik:v2.4"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "8080:80"
+      - "8081:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - benchmark
+
+networks:
+  benchmark:
+    external:
+      name: backend_benchmark

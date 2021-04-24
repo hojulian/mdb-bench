@@ -22,3 +22,5 @@ services:
 
 networks:
   benchmark:
+    external:
+      name: backend_benchmark

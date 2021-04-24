@@ -23,7 +23,33 @@ services:
     networks:
       - benchmark
 
-  mysql-replica:
+  mysql-replica-1:
+    image: microdb/benchmark:mysql
+    ports:
+      - '3306'
+    environment:
+      - MYSQL_REPLICATION_MODE=slave
+      - MYSQL_REPLICATION_USER=repl_user
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=test
+      - MYSQL_MASTER_HOST=mysql-master
+      - MYSQL_MASTER_PORT_NUMBER=3306
+      - MYSQL_MASTER_ROOT_PASSWORD=test
+      - MYSQL_AUTHENTICATION_PLUGIN=mysql_native_password
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    cpu_count: 2
+    mem_limit: 2gb
+    oom_kill_disable: true
+    depends_on:
+      - mysql-master
+    networks:
+      - benchmark
+
+  mysql-replica-2:
     image: microdb/benchmark:mysql
     ports:
       - '3306'
@@ -51,3 +77,5 @@ services:
 
 networks:
   benchmark:
+    external:
+      name: backend_benchmark

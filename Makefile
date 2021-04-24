@@ -1,15 +1,30 @@
+.PHONY: run-backend
+run-backend: ## Run bencmark backend
+	$(call print-target)
+	docker-compose -f docker/backend/docker-compose.yaml up -d --force-recreate --remove-orphans
+
 .PHONY: run-mysql
-run-mysql:
+run-mysql: ## Run mysql
 	$(call print-target)
 	docker-compose -f docker/mysql/docker-compose.yaml up --force-recreate --remove-orphans
 
-.PHONY: run-shipping
-run-shipping:
+.PHONY: run-mysql-cluster
+run-mysql-cluster: ## Run mysql cluster
 	$(call print-target)
-	docker-compose -f docker/shipping/docker-compose.yaml up --force-recreate --remove-orphans
+	docker-compose -f docker/mysql-cluster/docker-compose.yaml up --force-recreate --remove-orphans
 
-.PHONY: build-shipping
-build-shipping: ## build shipping services
+.PHONY: run-app-mysql
+run-app-mysql: ## Run all shipping services (mysql mode)
+	$(call print-target)
+	docker-compose -f docker/shipping/mysql.docker-compose.yaml up --force-recreate --remove-orphans
+
+.PHONY: run-app-mysql-cluster
+run-app-mysql-cluster: ## Run all shipping services (mysql-cluster mode)
+	$(call print-target)
+	docker-compose -f docker/shipping/mysql-cluster.docker-compose.yaml up --force-recreate --remove-orphans
+
+.PHONY: build-app
+build-app: ## build shipping services
 	$(call print-target)
 	docker build -t microdb/benchmark:handling -f docker/shipping/Dockerfile.handling .
 	docker build -t microdb/benchmark:booking -f docker/shipping/Dockerfile.booking .

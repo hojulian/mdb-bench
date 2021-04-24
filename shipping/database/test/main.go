@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/hojulian/mdb-bench/shipping/cargo"
@@ -12,14 +12,16 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open(mysql.Open("root:test@/test?charset=utf8&parseTime=True"), &gorm.Config{
+	// db, err := gorm.Open(mysql.Open("root:test@/test?charset=utf8&parseTime=True"), &gorm.Config{
+	// 	DisableForeignKeyConstraintWhenMigrating: true,
+	// })
+	db, err := gorm.Open(sqlite.Open("./test.db"), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	db = db.Set("gorm:table_options", "DEFAULT CHARSET=utf8")
 	migrator := db.Migrator()
 
 	tables := []interface{}{
@@ -27,6 +29,7 @@ func main() {
 		voyage.CarrierMovement{},
 		voyage.Schedule{},
 		location.Location{},
+		cargo.Cargo{},
 		cargo.HandlingEvent{},
 		cargo.HandlingActivity{},
 		cargo.RouteSpecification{},
