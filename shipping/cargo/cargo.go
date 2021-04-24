@@ -80,7 +80,7 @@ type RouteSpecification struct {
 	gorm.Model
 	Origin          location.UNLocode
 	Destination     location.UNLocode
-	ArrivalDeadline time.Time
+	ArrivalDeadline time.Time `gorm:"default:null"`
 }
 
 // IsSatisfiedBy checks whether provided itinerary satisfies this
