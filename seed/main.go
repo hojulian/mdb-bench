@@ -65,8 +65,8 @@ func main() {
 			logger.Log("seed", "failed", "error", err)
 			return
 		}
-		if *cargosCount%1000 == 0 {
-			logger.Log("cargos", *cargosCount)
+		if i%5000 == 0 {
+			logger.Log("cargos", i)
 		}
 	}
 }

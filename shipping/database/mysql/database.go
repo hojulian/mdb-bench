@@ -18,6 +18,9 @@ var (
 		*location.Tokyo,
 		*location.Rotterdam,
 		*location.Hamburg,
+		*location.Chicago,
+		*location.Helsinki,
+		*location.NewYork,
 	}
 
 	defaultVoyages = []voyage.Voyage{
