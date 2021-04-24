@@ -1,0 +1,312 @@
+voyages:
+  schema:
+    table: voyages
+    origin_table_query: >
+      CREATE TABLE `voyages` (
+        `number` varchar(191) NOT NULL,
+        `schedule_id` bigint(20) unsigned DEFAULT NULL,
+        PRIMARY KEY (`number`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `voyages` (
+        `number` text,
+        `schedule_id` integer,
+        PRIMARY KEY (`number`)
+      );
+    insert_query: REPLACE INTO voyages VALUES (?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+carrier_movements:
+  schema:
+    table: carrier_movements
+    origin_table_query: >
+      CREATE TABLE `carrier_movements` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        `departure_location` longtext,
+        `arrival_location` longtext,
+        `departure_time` datetime(3) DEFAULT NULL,
+        `arrival_time` datetime(3) DEFAULT NULL,
+        `schedule_refer` bigint(20) unsigned DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_carrier_movements_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `carrier_movements` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        `departure_location` text,
+        `arrival_location` text,
+        `departure_time` datetime DEFAULT null,
+        `arrival_time` datetime DEFAULT null,
+        `schedule_refer` integer,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_carrier_movements_deleted_at` ON `carrier_movements`(`deleted_at`);
+    insert_query: REPLACE INTO carrier_movements VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+schedules:
+  schema:
+    table: schedules
+    origin_table_query: >
+      CREATE TABLE `schedules` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_schedules_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `schedules` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_schedules_deleted_at` ON `schedules`(`deleted_at`);
+    insert_query: REPLACE INTO schedules VALUES (?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+locations:
+  schema:
+    table: locations
+    origin_table_query: >
+      CREATE TABLE `locations` (
+        `un_locode` varchar(191) NOT NULL,
+        `name` longtext,
+        PRIMARY KEY (`un_locode`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `locations` (
+        `un_locode` text,
+        `name` text,
+        PRIMARY KEY (`un_locode`)
+      );
+    insert_query: REPLACE INTO locations VALUES (?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+cargos:
+  schema:
+    table: cargos
+    origin_table_query: >
+      CREATE TABLE `cargos` (
+        `tracking_id` varchar(191) NOT NULL,
+        `origin` longtext,
+        `route_specification_id` bigint(20) unsigned DEFAULT NULL,
+        `itinerary_id` bigint(20) unsigned DEFAULT NULL,
+        `delivery_id` bigint(20) unsigned DEFAULT NULL,
+        PRIMARY KEY (`tracking_id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `cargos` (
+        `tracking_id` text,
+        `origin` text,
+        `route_specification_id` integer,
+        `itinerary_id` integer,
+        `delivery_id` integer,
+        PRIMARY KEY (`tracking_id`)
+      );
+    insert_query: REPLACE INTO cargos VALUES (?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+handling_events:
+  schema:
+    table: handling_events
+    origin_table_query: >
+      CREATE TABLE `handling_events` (
+        `tracking_id` varchar(191) NOT NULL,
+        `activity_id` bigint(20) unsigned DEFAULT NULL,
+        PRIMARY KEY (`tracking_id`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `handling_events` (
+        `tracking_id` text,
+        `activity_id` integer,
+        PRIMARY KEY (`tracking_id`)
+      );
+    insert_query: REPLACE INTO handling_events VALUES (?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+handling_activities:
+  schema:
+    table: handling_activities
+    origin_table_query: >
+      CREATE TABLE `handling_activities` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        `type` bigint(20) DEFAULT NULL,
+        `location` longtext,
+        `voyage_number` longtext,
+        PRIMARY KEY (`id`),
+        KEY `idx_handling_activities_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `handling_activities` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        `type` integer,
+        `location` text,
+        `voyage_number` text,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_handling_activities_deleted_at` ON `handling_activities`(`deleted_at`);
+    insert_query: REPLACE INTO handling_activities VALUES (?, ?, ?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+route_specifications:
+  schema:
+    table: route_specifications
+    origin_table_query: >
+      CREATE TABLE `route_specifications` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        `origin` longtext,
+        `destination` longtext,
+        `arrival_deadline` datetime(3) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_route_specifications_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `route_specifications` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        `origin` text,
+        `destination` text,
+        `arrival_deadline` datetime DEFAULT null,P
+        RIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_route_specifications_deleted_at` ON `route_specifications`(`deleted_at`);
+    insert_query: REPLACE INTO route_specifications VALUES (?, ?, ?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+itineraries:
+  schema:
+    table: itineraries
+    origin_table_query: >
+      CREATE TABLE `itineraries` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_itineraries_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `itineraries` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_itineraries_deleted_at` ON `itineraries`(`deleted_at`);
+    insert_query: REPLACE INTO itineraries VALUES (?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+deliveries:
+  schema:
+    table: deliveries
+    origin_table_query: >
+      CREATE TABLE `deliveries` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        `itinerary_id` bigint(20) unsigned DEFAULT NULL,
+        `route_specification_id` bigint(20) unsigned DEFAULT NULL,
+        `routing_status` bigint(20) DEFAULT NULL,
+        `transport_status` bigint(20) DEFAULT NULL,
+        `next_expected_activity_id` bigint(20) unsigned DEFAULT NULL,
+        `last_event_id` varchar(64) DEFAULT NULL,
+        `last_known_location` longtext,
+        `current_voyage` longtext,
+        `eta` datetime(3) DEFAULT NULL,
+        `is_misdirected` tinyint(1) DEFAULT NULL,
+        `is_unloaded_at_destination` tinyint(1) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_deliveries_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `deliveries` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        `itinerary_id` integer,
+        `route_specification_id` integer,
+        `routing_status` integer,
+        `transport_status` integer,
+        `next_expected_activity_id` integer,
+        `last_event_id` text,
+        `last_known_location` text,
+        `current_voyage` text,`eta` datetime DEFAULT null,
+        `is_misdirected` numeric,
+        `is_unloaded_at_destination` numeric,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_deliveries_deleted_at` ON `deliveries`(`deleted_at`);
+    insert_query: REPLACE INTO deliveries VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
+legs:
+  schema:
+    table: legs
+    origin_table_query: >
+      CREATE TABLE `legs` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        `voyage_number` longtext,
+        `load_location` longtext,
+        `unload_location` longtext,
+        `load_time` datetime(3) DEFAULT NULL,
+        `unload_time` datetime(3) DEFAULT NULL,
+        `itinerary_refer` bigint(20) unsigned DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_legs_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `legs` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        `voyage_number` text,
+        `load_location` text,
+        `unload_location` text,
+        `load_time` datetime DEFAULT null,
+        `unload_time` datetime DEFAULT null,
+        `itinerary_refer` integer,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_legs_deleted_at` ON `legs`(`deleted_at`);
+    insert_query: REPLACE INTO legs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
