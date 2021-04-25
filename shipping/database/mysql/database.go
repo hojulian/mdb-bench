@@ -62,6 +62,7 @@ func createTableIfNotExist(migrator gorm.Migrator, table interface{}) error {
 func NewCargoRepository(db *gorm.DB) cargo.Repository {
 	requiredTables := []interface{}{
 		cargo.Cargo{},
+		cargo.HandlingHistory{},
 		cargo.HandlingEvent{},
 		cargo.HandlingActivity{},
 		cargo.RouteSpecification{},
@@ -82,9 +83,14 @@ func NewCargoRepository(db *gorm.DB) cargo.Repository {
 }
 
 func (r *cargoRepository) Store(c *cargo.Cargo) error {
-	res := r.db.Create(c)
-	if err := res.Error; err != nil {
-		return fmt.Errorf("failed to create cargo: %w", err)
+	db, err := r.db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve db instance: %w", err)
+	}
+
+	_, err = db.Exec(sqlInsertCargo, c.TrackingID, c.Origin, c.RouteSpecificationID, c.ItineraryID, c.DeliveryID)
+	if err != nil {
+		return fmt.Errorf("failed to insert cargo: %w", err)
 	}
 
 	return nil
@@ -92,33 +98,70 @@ func (r *cargoRepository) Store(c *cargo.Cargo) error {
 
 func (r *cargoRepository) Find(id cargo.TrackingID) (*cargo.Cargo, error) {
 	var cg cargo.Cargo
+	// s := r.db.Session(&gorm.Session{DryRun: true}).Joins("RouteSpecification").Joins("Itinerary").Joins("Delivery").Find(&cg, "tracking_id", id).Statement
+	// q := s.SQL.String()
 
-	res := r.db.Find(&cg, id)
-	if err := res.Error; err != nil {
-		return nil, fmt.Errorf("failed to retrieve cargo: %w", err)
+	db, err := r.db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve db instance: %w", err)
 	}
+
+	rows, err := db.Query(sqlFindCargoByID, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		if err := r.db.ScanRows(rows, &cg); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+	}
+
 	return &cg, nil
 }
 
 func (r *cargoRepository) FindAll() []*cargo.Cargo {
 	var cgs []*cargo.Cargo
 
-	res := r.db.Find(&cgs)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to retrieve all cargos: %w", err))
+	db, err := r.db.DB()
+	if err != nil {
+		panic(fmt.Errorf("failed to retrieve db instance: %w", err))
+	}
+
+	rows, err := db.Query(sqlFindAllCargos)
+	if err != nil {
+		panic(fmt.Errorf("failed to read rows: %w", err))
+	}
+	if err := rows.Err(); err != nil {
+		panic(fmt.Errorf("failed to read rows: %w", err))
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cg cargo.Cargo
+		if err := r.db.ScanRows(rows, &cg); err != nil {
+			panic(fmt.Errorf("failed to scan row: %w", err))
+		}
+		cgs = append(cgs, &cg)
 	}
 
 	return cgs
 }
 
-func NewLocationRepository(db *gorm.DB) location.Repository {
+func NewLocationRepository(db *gorm.DB, withDefaults bool) location.Repository {
 	if err := createTableIfNotExist(db.Migrator(), &location.Location{}); err != nil {
 		panic(fmt.Errorf("failed to create location table: %w", err))
 	}
 
-	res := db.Create(&defaultLocations)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to create default locations: %w", err))
+	if withDefaults {
+		res := db.Create(&defaultLocations)
+		if err := res.Error; err != nil {
+			panic(fmt.Errorf("failed to create default locations: %w", err))
+		}
 	}
 
 	return &locationRepository{
@@ -129,25 +172,58 @@ func NewLocationRepository(db *gorm.DB) location.Repository {
 func (r *locationRepository) Find(locode location.UNLocode) (*location.Location, error) {
 	var loc location.Location
 
-	res := r.db.Find(&loc, locode)
-	if err := res.Error; err != nil {
-		return nil, fmt.Errorf("failed to retrieve location: %w", err)
+	db, err := r.db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve db instance: %w", err)
 	}
+
+	rows, err := db.Query(sqlFindLocationByID, locode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		if err := r.db.ScanRows(rows, &loc); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+	}
+
 	return &loc, nil
 }
 
 func (r *locationRepository) FindAll() []*location.Location {
 	var locs []*location.Location
 
-	res := r.db.Find(&locs)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to retrieve all locations: %w", err))
+	db, err := r.db.DB()
+	if err != nil {
+		panic(fmt.Errorf("failed to retrieve db instance: %w", err))
+	}
+
+	rows, err := db.Query(sqlFindAllLocations)
+	if err != nil {
+		panic(fmt.Errorf("failed to read rows: %w", err))
+	}
+	if err := rows.Err(); err != nil {
+		panic(fmt.Errorf("failed to read rows: %w", err))
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var loc location.Location
+		if err := r.db.ScanRows(rows, &loc); err != nil {
+			panic(fmt.Errorf("failed to scan row: %w", err))
+		}
+		locs = append(locs, &loc)
 	}
 
 	return locs
 }
 
-func NewVoyageRepository(db *gorm.DB) voyage.Repository {
+func NewVoyageRepository(db *gorm.DB, withDefaults bool) voyage.Repository {
 	requiredTables := []interface{}{
 		voyage.Voyage{},
 		voyage.CarrierMovement{},
@@ -161,9 +237,11 @@ func NewVoyageRepository(db *gorm.DB) voyage.Repository {
 		}
 	}
 
-	res := db.Create(&defaultVoyages)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to create default voyages: %w", err))
+	if withDefaults {
+		res := db.Create(&defaultVoyages)
+		if err := res.Error; err != nil {
+			panic(fmt.Errorf("failed to create default voyages: %w", err))
+		}
 	}
 
 	return &voyageRepository{
@@ -174,10 +252,26 @@ func NewVoyageRepository(db *gorm.DB) voyage.Repository {
 func (r *voyageRepository) Find(number voyage.Number) (*voyage.Voyage, error) {
 	var voy voyage.Voyage
 
-	res := r.db.Find(&voy, number)
-	if err := res.Error; err != nil {
-		return nil, fmt.Errorf("failed to retrieve voyage: %w", err)
+	db, err := r.db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve db instance: %w", err)
 	}
+
+	rows, err := db.Query(sqlFindVoyageByID, number)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		if err := r.db.ScanRows(rows, &voy); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+	}
+
 	return &voy, nil
 }
 
@@ -195,12 +289,13 @@ func (r *handlingEventRepository) Store(e cargo.HandlingEvent) {
 }
 
 func (r *handlingEventRepository) QueryHandlingHistory(id cargo.TrackingID) cargo.HandlingHistory {
-	var evts []cargo.HandlingEvent
+	// var evt cargo.HandlingEvent
+	// res := r.db.Find(&evt, "tracking_id = ?", id)
+	// if err := res.Error; err != nil {
+	// 	fmt.Println(fmt.Errorf("failed to retrieve handling even: %w", err))
+	// }
 
-	res := r.db.Find(&evts, id)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to retrieve handling events: %w", err))
-	}
+	var his cargo.HandlingHistory
 
-	return cargo.HandlingHistory{HandlingEvents: evts}
+	return his
 }

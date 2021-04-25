@@ -22,7 +22,7 @@ var users = []shipping.User{
 	shipping.RegularCustomer(*url),
 	shipping.RegularCustomer(*url),
 	shipping.RegularAuditor(*url),
-	shipping.RegularBooker(*url),
+	// shipping.RegularBooker(*url),
 }
 
 func main() {

@@ -121,6 +121,31 @@ cargos:
   connection:
     type: mysql
     dsn: root:test@tcp(127.0.0.1:3306)/test
+handling_histories:
+  schema:
+    table: handling_histories
+    origin_table_query: >
+      CREATE TABLE `handling_histories` (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `created_at` datetime(3) DEFAULT NULL,
+        `updated_at` datetime(3) DEFAULT NULL,
+        `deleted_at` datetime(3) DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        KEY `idx_handling_histories_deleted_at` (`deleted_at`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    local_table_query: >
+      CREATE TABLE IF NOT EXISTS `handling_histories` (
+        `id` integer,
+        `created_at` datetime,
+        `updated_at` datetime,
+        `deleted_at` datetime,
+        PRIMARY KEY (`id`)
+      );
+      CREATE INDEX `idx_handling_histories_deleted_at` ON `handling_histories`(`deleted_at`);
+    insert_query: REPLACE INTO handling_histories VALUES (?, ?, ?, ?);
+  connection:
+    type: mysql
+    dsn: root:test@tcp(127.0.0.1:3306)/test
 handling_events:
   schema:
     table: handling_events
@@ -128,15 +153,17 @@ handling_events:
       CREATE TABLE `handling_events` (
         `tracking_id` varchar(191) NOT NULL,
         `activity_id` bigint(20) unsigned DEFAULT NULL,
+        `handling_history_refer` bigint(20) unsigned DEFAULT NULL,
         PRIMARY KEY (`tracking_id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
     local_table_query: >
       CREATE TABLE IF NOT EXISTS `handling_events` (
         `tracking_id` text,
         `activity_id` integer,
+        `handling_history_refer` integer,
         PRIMARY KEY (`tracking_id`)
       );
-    insert_query: REPLACE INTO handling_events VALUES (?, ?);
+    insert_query: REPLACE INTO handling_events VALUES (?, ?, ?);
   connection:
     type: mysql
     dsn: root:test@tcp(127.0.0.1:3306)/test

@@ -30,6 +30,7 @@ func main() {
 		voyage.Schedule{},
 		location.Location{},
 		cargo.Cargo{},
+		cargo.HandlingHistory{},
 		cargo.HandlingEvent{},
 		cargo.HandlingActivity{},
 		cargo.RouteSpecification{},

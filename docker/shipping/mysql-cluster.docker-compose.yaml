@@ -16,6 +16,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
+      - DB_DEFAULTS=false
     command: --database mysql-cluster
     networks:
       - benchmark
@@ -39,6 +40,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
+      - DB_DEFAULTS=false
     command: --database mysql-cluster
     networks:
       - benchmark
@@ -62,6 +64,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
+      - DB_DEFAULTS=false
     command: --database mysql-cluster
     networks:
       - benchmark

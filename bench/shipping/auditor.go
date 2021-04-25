@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	vegeta "github.com/tsenart/vegeta/v12/lib"
-
-	"github.com/hojulian/mdb-bench/shipping/cargo"
 )
 
 type Auditor struct {
@@ -14,7 +12,7 @@ type Auditor struct {
 }
 
 func (a *Auditor) CheckCargo() {
-	id := cargo.NextTrackingID()
+	id := randTrackingID()
 	u := fmt.Sprintf("%s/booking/v1/cargos/%s", a.url, id)
 	t := vegeta.Target{
 		Method: "GET",

@@ -13,18 +13,6 @@ import (
 	"github.com/hojulian/mdb-bench/shipping/location"
 )
 
-var locations = []location.UNLocode{
-	location.SESTO,
-	location.AUMEL,
-	location.CNHKG,
-	location.USNYC,
-	location.USCHI,
-	location.JNTKO,
-	location.DEHAM,
-	location.NLRTM,
-	location.FIHEL,
-}
-
 type Booker struct {
 	url     string
 	targets []vegeta.Target
@@ -61,8 +49,8 @@ func (b *Booker) BookCargo() error {
 	u := fmt.Sprintf("%s/booking/v1/cargos", b.url)
 
 	rs := &bookCargoRequest{
-		Origin:          randomLoc(),
-		Destination:     randomLoc(),
+		Origin:          randLocation(),
+		Destination:     randLocation(),
 		ArrivalDeadline: time.Now().AddDate(0, 0, rand.Intn(30)).Format(time.RFC3339),
 	}
 
@@ -82,10 +70,6 @@ func (b *Booker) BookCargo() error {
 
 	b.targets = append(b.targets, t)
 	return nil
-}
-
-func randomLoc() location.UNLocode {
-	return locations[rand.Intn(len(locations))]
 }
 
 func (b *Booker) AssignCargoToRoute(id cargo.TrackingID, itinerary cargo.Itinerary) error {

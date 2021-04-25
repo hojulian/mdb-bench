@@ -25,9 +25,9 @@ func RegularAuditor(url string) User {
 	}
 
 	a.GetAllLocations()
-	a.CheckAllCargos()
+	// a.CheckAllCargos()
 	a.CheckCargo()
-	a.CheckAllCargos()
+	// a.CheckAllCargos()
 	a.CheckCargo()
 
 	return a
@@ -38,15 +38,15 @@ func RegularBooker(url string) User {
 		url: url,
 	}
 
-	b.ViewAllCargos()
+	// b.ViewAllCargos()
 	b.BookCargo()
 	b.ViewCargo()
-	b.ViewAllCargos()
+	// b.ViewAllCargos()
 	b.BookCargo()
 	b.ViewCargo()
-	b.ViewAllCargos()
+	// b.ViewAllCargos()
 	b.BookCargo()
-	b.ViewAllCargos()
+	// b.ViewAllCargos()
 	b.ViewCargo()
 
 	return b

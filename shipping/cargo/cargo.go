@@ -48,7 +48,7 @@ func (c *Cargo) DeriveDeliveryProgress(history HandlingHistory) {
 // New creates a new, unrouted cargo.
 func New(id TrackingID, rs RouteSpecification) *Cargo {
 	itinerary := Itinerary{}
-	history := HandlingHistory{make([]HandlingEvent, 0)}
+	history := HandlingHistory{HandlingEvents: make([]HandlingEvent, 0)}
 
 	return &Cargo{
 		TrackingID:         id,

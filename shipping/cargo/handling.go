@@ -31,9 +31,10 @@ type HandlingActivity struct {
 // HandlingEvent is used to register the event when, for instance, a cargo is
 // unloaded from a carrier at a some location at a given time.
 type HandlingEvent struct {
-	TrackingID TrackingID `gorm:"primaryKey"`
-	ActivityID int
-	Activity   HandlingActivity `gorm:"foreignKey:ActivityID"`
+	TrackingID           TrackingID `gorm:"primaryKey"`
+	ActivityID           int
+	Activity             HandlingActivity `gorm:"foreignKey:ActivityID"`
+	HandlingHistoryRefer uint
 }
 
 // HandlingEventType describes type of a handling event.
@@ -70,7 +71,8 @@ func (t HandlingEventType) String() string {
 
 // HandlingHistory is the handling history of a cargo.
 type HandlingHistory struct {
-	HandlingEvents []HandlingEvent
+	gorm.Model
+	HandlingEvents []HandlingEvent `gorm:"foreignKey:HandlingHistoryRefer"`
 }
 
 // MostRecentlyCompletedEvent returns most recently completed handling event.

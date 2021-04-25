@@ -81,6 +81,8 @@ func NewCargoRepository(databaseType DatabaseType, params map[string]string) (ca
 			params["NATS_PORT"],
 			params["NATS_CLIENT_ID"],
 			params["NATS_CLUSTER_ID"],
+			"cargos",
+			"handling_histories",
 			"handling_events",
 			"handling_activities",
 			"route_specifications",
@@ -97,6 +99,8 @@ func NewCargoRepository(databaseType DatabaseType, params map[string]string) (ca
 }
 
 func NewLocationRepository(databaseType DatabaseType, params map[string]string) (location.Repository, error) {
+	withDefaults, _ := strconv.ParseBool(params["DB_DEFAULTS"])
+
 	switch databaseType {
 	case DatabaseTypeInMem:
 		return inmem.NewLocationRepository(), nil
@@ -112,7 +116,7 @@ func NewLocationRepository(databaseType DatabaseType, params map[string]string) 
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to database: %w", err)
 		}
-		return mysqldb.NewLocationRepository(db), nil
+		return mysqldb.NewLocationRepository(db, withDefaults), nil
 
 	case DatabaseTypeMySQLCluster:
 		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
@@ -136,7 +140,7 @@ func NewLocationRepository(databaseType DatabaseType, params map[string]string) 
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
 		}
-		return mysqldb.NewLocationRepository(db), nil
+		return mysqldb.NewLocationRepository(db, withDefaults), nil
 
 	case DatabaseTypeMicroDB:
 		_, err := microDB(
@@ -155,6 +159,8 @@ func NewLocationRepository(databaseType DatabaseType, params map[string]string) 
 }
 
 func NewVoyageRepository(databaseType DatabaseType, params map[string]string) (voyage.Repository, error) {
+	withDefaults, _ := strconv.ParseBool(params["DB_DEFAULTS"])
+
 	switch databaseType {
 	case DatabaseTypeInMem:
 		return inmem.NewVoyageRepository(), nil
@@ -170,7 +176,7 @@ func NewVoyageRepository(databaseType DatabaseType, params map[string]string) (v
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to database: %w", err)
 		}
-		return mysqldb.NewVoyageRepository(db), nil
+		return mysqldb.NewVoyageRepository(db, withDefaults), nil
 
 	case DatabaseTypeMySQLCluster:
 		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
@@ -194,7 +200,7 @@ func NewVoyageRepository(databaseType DatabaseType, params map[string]string) (v
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
 		}
-		return mysqldb.NewVoyageRepository(db), nil
+		return mysqldb.NewVoyageRepository(db, withDefaults), nil
 
 	case DatabaseTypeMicroDB:
 		_, err := microDB(
@@ -295,8 +301,10 @@ func mySQLConnectionCfg(host, port, user, password, database string) string {
 	mCfg.Passwd = password
 	mCfg.DBName = database
 	mCfg.ParseTime = true
+	dsn := mCfg.FormatDSN()
+	dsn = fmt.Sprintf("%s&interpolateParams=true", dsn)
 
-	return mCfg.FormatDSN()
+	return dsn
 }
 
 func configureGormDB(db *gorm.DB) *gorm.DB {

@@ -46,9 +46,19 @@ CREATE TABLE IF NOT EXISTS `cargos` (
     PRIMARY KEY (`tracking_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `handling_histories` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(3) DEFAULT NULL,
+    `updated_at` datetime(3) DEFAULT NULL,
+    `deleted_at` datetime(3) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_handling_histories_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `handling_events` (
     `tracking_id` varchar(191) NOT NULL,
     `activity_id` bigint(20) unsigned DEFAULT NULL,
+    `handling_history_refer` bigint(20) unsigned DEFAULT NULL,
     PRIMARY KEY (`tracking_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

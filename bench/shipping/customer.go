@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	vegeta "github.com/tsenart/vegeta/v12/lib"
-
-	"github.com/hojulian/mdb-bench/shipping/cargo"
 )
 
 type Customer struct {
@@ -14,8 +12,8 @@ type Customer struct {
 }
 
 func (c *Customer) TrackCargo() {
-	id := cargo.NextTrackingID()
-	u := fmt.Sprintf("%s/tracking/v1/cargos/%s", c.url, id)
+	id := randTrackingID()
+	u := fmt.Sprintf("%s/tracking/v1/cargos/%s", c.url, string(id))
 	t := vegeta.Target{
 		Method: "GET",
 		URL:    u,
