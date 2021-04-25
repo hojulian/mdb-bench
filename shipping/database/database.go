@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/hojulian/microdb/client"
@@ -302,7 +303,6 @@ func mySQLConnectionCfg(host, port, user, password, database string) string {
 	mCfg.DBName = database
 	mCfg.ParseTime = true
 	dsn := mCfg.FormatDSN()
-	dsn = fmt.Sprintf("%s&interpolateParams=true", dsn)
 
 	return dsn
 }
@@ -329,11 +329,17 @@ func mySQLDBCluster(dsn ...string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to open database connection: %w", err)
 	}
 
-	db.Use(dbresolver.Register(dbresolver.Config{
-		Sources:  []gorm.Dialector{dbs[0]},
-		Replicas: dbs[1:],
-		Policy:   dbresolver.RandomPolicy{},
-	}))
+	db.Use(
+		dbresolver.Register(dbresolver.Config{
+			Sources:  []gorm.Dialector{dbs[0]},
+			Replicas: dbs[1:],
+			Policy:   dbresolver.RandomPolicy{},
+		}).
+			SetConnMaxIdleTime(time.Hour).
+			SetConnMaxLifetime(24 * time.Hour).
+			SetMaxIdleConns(100).
+			SetMaxOpenConns(200),
+	)
 	db = configureGormDB(db)
 	return db, nil
 }

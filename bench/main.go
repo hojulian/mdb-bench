@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"math/rand"
 	"os"
 	"time"
 
@@ -22,7 +23,7 @@ var users = []shipping.User{
 	shipping.RegularCustomer(*url),
 	shipping.RegularCustomer(*url),
 	shipping.RegularAuditor(*url),
-	// shipping.RegularBooker(*url),
+	shipping.RegularBooker(*url),
 }
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	for _, u := range users {
 		targets = append(targets, u.Interactions()...)
 	}
+	rand.Shuffle(len(targets), func(i, j int) { targets[i], targets[j] = targets[j], targets[i] })
 
 	targeter := vegeta.NewStaticTargeter(targets...)
 	attacker := vegeta.NewAttacker()

@@ -16,12 +16,12 @@ run-mysql-cluster: ## Run mysql cluster
 .PHONY: run-app-mysql
 run-app-mysql: ## Run all shipping services (mysql mode)
 	$(call print-target)
-	docker-compose -f docker/shipping/mysql.docker-compose.yaml up --force-recreate --remove-orphans -d
+	docker-compose -f docker/shipping/mysql.docker-compose.yaml up --force-recreate --remove-orphans -d --scale handling=3 --scale tracking=3 --scale booking=3
 
 .PHONY: run-app-mysql-cluster
 run-app-mysql-cluster: ## Run all shipping services (mysql-cluster mode)
 	$(call print-target)
-	docker-compose -f docker/shipping/mysql-cluster.docker-compose.yaml up --force-recreate --remove-orphans
+	docker-compose -f docker/shipping/mysql-cluster.docker-compose.yaml up --force-recreate --remove-orphans -d --scale handling=3 --scale tracking=3 --scale booking=3
 
 .PHONY: build-app
 build-app: ## build shipping services

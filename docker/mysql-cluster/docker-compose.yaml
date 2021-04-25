@@ -4,7 +4,7 @@ services:
   mysql-master:
     image: microdb/benchmark:mysql
     ports:
-      - '3306'
+      - '3306:3306'
     environment:
       - MYSQL_REPLICATION_MODE=master
       - MYSQL_REPLICATION_USER=repl_user
@@ -41,8 +41,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 6
-    cpu_count: 2
-    mem_limit: 2gb
+    cpu_count: 4
+    mem_limit: 4gb
     oom_kill_disable: true
     depends_on:
       - mysql-master
@@ -67,8 +67,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 6
-    cpu_count: 2
-    mem_limit: 2gb
+    cpu_count: 4
+    mem_limit: 4gb
     oom_kill_disable: true
     depends_on:
       - mysql-master

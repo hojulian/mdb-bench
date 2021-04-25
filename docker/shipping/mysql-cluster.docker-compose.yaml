@@ -20,6 +20,7 @@ services:
     command: --database mysql-cluster
     networks:
       - benchmark
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.handling.rule=PathPrefix(`/handling`)"
@@ -44,6 +45,7 @@ services:
     command: --database mysql-cluster
     networks:
       - benchmark
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
@@ -68,6 +70,7 @@ services:
     command: --database mysql-cluster
     networks:
       - benchmark
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
