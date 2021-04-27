@@ -25,9 +25,7 @@ func RegularAuditor(url string) User {
 	}
 
 	a.GetAllLocations()
-	// a.CheckAllCargos()
 	a.CheckCargo()
-	// a.CheckAllCargos()
 	a.CheckCargo()
 
 	return a
@@ -38,29 +36,25 @@ func RegularBooker(url string) User {
 		url: url,
 	}
 
-	// b.ViewAllCargos()
 	b.BookCargo()
 	b.ViewCargo()
-	// b.ViewAllCargos()
 	b.BookCargo()
 	b.ViewCargo()
-	// b.ViewAllCargos()
 	b.BookCargo()
-	// b.ViewAllCargos()
 	b.ViewCargo()
 
 	return b
 }
 
-func BookOnlyBooker(url string) User {
+func HighLoadBooker(url string) User {
 	b := &Booker{
 		url: url,
 	}
 
-	b.BookCargo()
-	b.BookCargo()
-	b.BookCargo()
-	b.BookCargo()
+	for i := 0; i < 500; i++ {
+		b.BookCargo()
+		b.ViewCargo()
+	}
 
 	return b
 }
