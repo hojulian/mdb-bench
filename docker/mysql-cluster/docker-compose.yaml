@@ -41,8 +41,8 @@ services:
       interval: 15s
       timeout: 5s
       retries: 6
-    cpu_count: 4
-    mem_limit: 4gb
+    cpu_count: 2
+    mem_limit: 2gb
     oom_kill_disable: true
     depends_on:
       - mysql-master
@@ -62,13 +62,15 @@ services:
       - MYSQL_MASTER_PORT_NUMBER=3306
       - MYSQL_MASTER_ROOT_PASSWORD=test
       - MYSQL_AUTHENTICATION_PLUGIN=mysql_native_password
+    volumes:
+      - docker/microdb/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro
     healthcheck:
       test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
       interval: 15s
       timeout: 5s
       retries: 6
-    cpu_count: 4
-    mem_limit: 4gb
+    cpu_count: 2
+    mem_limit: 2gb
     oom_kill_disable: true
     depends_on:
       - mysql-master

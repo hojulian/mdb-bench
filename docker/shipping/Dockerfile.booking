@@ -6,7 +6,7 @@ RUN mkdir /build
 ADD . /build/
 WORKDIR /build
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-extldflags -static" -o bookingd ./shipping/cmd/bookingd/*.go
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags "-extldflags -static" -o bookingd ./shipping/cmd/bookingd/*.go
 
 # Build image
 FROM alpine:latest
