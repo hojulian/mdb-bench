@@ -1,0 +1,3 @@
+FROM microdb/publisher:latest
+
+COPY shipping/database/microdb/dataorigin.yaml /

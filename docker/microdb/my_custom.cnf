@@ -1,0 +1,8 @@
+[mysqld]
+server-id=1
+default-authentication-plugin=mysql_native_password
+datadir=/var/lib/mysql
+binlog-do-db=test
+binlog_format=row
+log_bin=mysql-bin.log
+binlog-row-image=full

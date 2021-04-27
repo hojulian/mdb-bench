@@ -1,0 +1,6 @@
+FROM bitnami/mysql:5.7.34
+
+ADD docker/mysql/seed_data.sql.gz /docker-entrypoint-initdb.d
+ADD docker/microdb/my_custom.cnf /opt/bitnami/mysql/conf/
+
+EXPOSE 3306

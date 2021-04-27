@@ -1,0 +1,53 @@
+version: '2.2'
+services:
+  # ================== NATS ===================
+  nats:
+    image: nats:2.2.1
+    ports:
+      - '4222:4222'
+      - '8222:8222'
+    command: >
+      -p=4222
+      -m=8222
+    networks:
+      benchmark:
+  stan:
+    image: nats-streaming:0.21.2
+    ports:
+      - '4222'
+      - '8222'
+    command: >
+      -p=4222
+      -m=8222
+      -cid=nats-cluster
+      -store=file
+      -dir=store
+      -nats_server=nats://nats:4222
+    depends_on:
+      - nats
+    networks:
+      benchmark:
+  # ================ DATASTORE ================
+  dataorigin:
+    image: microdb/benchmark:dataorigin
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_DATABASE=test
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_AUTHENTICATION_PLUGIN=mysql_native_password
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    cpu_count: 4
+    mem_limit: 4gb
+    oom_kill_disable: true
+    networks:
+      - benchmark
+
+networks:
+  benchmark:
+    external:
+      name: backend_benchmark
