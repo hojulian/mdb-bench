@@ -20,18 +20,9 @@ services:
     networks:
       - benchmark
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -70,18 +61,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -98,6 +80,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
       - "traefik.http.routers.booking.entrypoints=web"
+      - "traefik.http.routers.booking.service=booking"
+      - "traefik.http.services.booking.loadbalancer.server.port=8080"
       
   booking-2:
     image: microdb/benchmark:booking
@@ -119,18 +103,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -145,8 +120,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
-      - "traefik.http.routers.booking.entrypoints=web"
+      - "traefik.http.services.booking.loadbalancer.server.port=8080"
 
   booking-3:
     image: microdb/benchmark:booking
@@ -168,18 +142,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -194,8 +159,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
-      - "traefik.http.routers.booking.entrypoints=web"
+      - "traefik.http.services.booking.loadbalancer.server.port=8080"
       
   booking-4:
     image: microdb/benchmark:booking
@@ -217,18 +181,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -243,8 +198,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
-      - "traefik.http.routers.booking.entrypoints=web"
+      - "traefik.http.services.booking.loadbalancer.server.port=8080"
 
   booking-5:
     image: microdb/benchmark:booking
@@ -266,18 +220,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -292,8 +237,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"
-      - "traefik.http.routers.booking.entrypoints=web"
+      - "traefik.http.services.booking.loadbalancer.server.port=8080"
 
   tracking-1:
     image: microdb/benchmark:tracking
@@ -315,18 +259,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -341,8 +276,10 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
+      - "traefik.http.services.tracking.loadbalancer.server.port=8080"
       - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
       - "traefik.http.routers.tracking.entrypoints=web"
+      - "traefik.http.routers.tracking.service=tracking"
 
   tracking-2:
     image: microdb/benchmark:tracking
@@ -364,18 +301,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -390,8 +318,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
-      - "traefik.http.routers.tracking.entrypoints=web"
+      - "traefik.http.services.tracking.loadbalancer.server.port=8080"
 
   tracking-3:
     image: microdb/benchmark:tracking
@@ -413,18 +340,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -439,8 +357,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
-      - "traefik.http.routers.tracking.entrypoints=web"
+      - "traefik.http.services.tracking.loadbalancer.server.port=8080"
 
   tracking-4:
     image: microdb/benchmark:tracking
@@ -462,18 +379,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -488,8 +396,7 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
-      - "traefik.http.routers.tracking.entrypoints=web"
+      - "traefik.http.services.tracking.loadbalancer.server.port=8080"
 
   tracking-5:
     image: microdb/benchmark:tracking
@@ -511,18 +418,9 @@ services:
       - benchmark
     restart: unless-stopped
     depends_on:
-      - publisher-cargos
-      - publisher-carrier-movements
-      - publisher-deliveries
-      - publisher-handling-activities
-      - publisher-handling-events
-      - publisher-handling-histories
-      - publisher-itineraries
-      - publisher-legs
-      - publisher-locations
-      - publisher-route-specifications
-      - publisher-schedules
-      - publisher-voyages
+      - publisher-1
+      - publisher-2
+      - publisher-3
       - querier-cargos
       - querier-carrier-movements
       - querier-deliveries
@@ -537,11 +435,10 @@ services:
       - querier-voyages
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tracking.rule=PathPrefix(`/tracking`)"
-      - "traefik.http.routers.tracking.entrypoints=web"
+      - "traefik.http.services.tracking.loadbalancer.server.port=8080"
 
   # ================ PUBLISHER ================
-  publisher-voyages:
+  publisher-1:
     image: microdb/benchmark:publisher
     environment:
       - MYSQL_HOST=dataorigin
@@ -549,7 +446,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
-      - MYSQL_TABLE=voyages
+      - MYSQL_TABLES=voyages,carrier_movements,schedules,locations
       - DB_DEFAULTS=false
       - NATS_HOST=nats
       - NATS_PORT=4222
@@ -559,7 +456,7 @@ services:
     networks:
       benchmark:
 
-  publisher-carrier-movements:
+  publisher-2:
     image: microdb/benchmark:publisher
     environment:
       - MYSQL_HOST=dataorigin
@@ -567,61 +464,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
-      - MYSQL_TABLE=carrier_movements
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=12
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-
-  publisher-schedules:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=schedules
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=13
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-
-  publisher-locations:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=locations
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=14
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-
-  publisher-cargos:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=cargos
+      - MYSQL_TABLES=cargos,handling_histories,handling_events,handling_activities
       - DB_DEFAULTS=false
       - NATS_HOST=nats
       - NATS_PORT=4222
@@ -630,26 +473,8 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
-  
-  publisher-handling-histories:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=handling_histories
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=16
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
 
-  publisher-handling-events:
+  publisher-3:
     image: microdb/benchmark:publisher
     environment:
       - MYSQL_HOST=dataorigin
@@ -657,43 +482,7 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=test
       - MYSQL_DATABASE=test
-      - MYSQL_TABLE=handling_events
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=17
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-
-  publisher-handling-activities:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=handling_activities
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=18
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-
-  publisher-route-specifications:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=route_specifications
+      - MYSQL_TABLES=route_specifications,itineraries,deliveries,legs
       - DB_DEFAULTS=false
       - NATS_HOST=nats
       - NATS_PORT=4222
@@ -703,60 +492,6 @@ services:
     networks:
       benchmark:
 
-  publisher-itineraries:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=itineraries
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=20
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-  
-  publisher-deliveries:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=deliveries
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=21
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-  
-  publisher-legs:
-    image: microdb/benchmark:publisher
-    environment:
-      - MYSQL_HOST=dataorigin
-      - MYSQL_PORT=3306
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=test
-      - MYSQL_DATABASE=test
-      - MYSQL_TABLE=legs
-      - DB_DEFAULTS=false
-      - NATS_HOST=nats
-      - NATS_PORT=4222
-      - NATS_CLUSTER_ID=nats-cluster
-      - PUBLISHER_ID=22
-      - DATAORIGIN_CFG=/dataorigin.yaml
-    networks:
-      benchmark:
-  
   # ================= QUERIER =================
   querier-voyages:
     image: microdb/benchmark:querier
