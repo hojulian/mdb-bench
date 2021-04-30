@@ -510,6 +510,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-carrier-movements:
     image: microdb/benchmark:querier
@@ -528,6 +529,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-schedules:
     image: microdb/benchmark:querier
@@ -546,6 +548,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-locations:
     image: microdb/benchmark:querier
@@ -564,6 +567,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-cargos:
     image: microdb/benchmark:querier
@@ -582,6 +586,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-handling-histories:
     image: microdb/benchmark:querier
@@ -600,6 +605,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-handling-events:
     image: microdb/benchmark:querier
@@ -618,6 +624,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-handling-activities:
     image: microdb/benchmark:querier
@@ -636,6 +643,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-route-specifications:
     image: microdb/benchmark:querier
@@ -654,6 +662,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-itineraries:
     image: microdb/benchmark:querier
@@ -672,6 +681,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-deliveries:
     image: microdb/benchmark:querier
@@ -690,6 +700,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
   
   querier-legs:
     image: microdb/benchmark:querier
@@ -708,6 +719,7 @@ services:
       - DATAORIGIN_CFG=/dataorigin.yaml
     networks:
       benchmark:
+    restart: unless-stopped
 
   # ================= GATEWAY =================
   gateway:

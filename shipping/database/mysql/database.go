@@ -98,8 +98,6 @@ func (r *cargoRepository) Store(c *cargo.Cargo) error {
 
 func (r *cargoRepository) Find(id cargo.TrackingID) (*cargo.Cargo, error) {
 	var cg cargo.Cargo
-	// s := r.db.Session(&gorm.Session{DryRun: true}).Joins("RouteSpecification").Joins("Itinerary").Joins("Delivery").Find(&cg, "tracking_id", id).Statement
-	// q := s.SQL.String()
 
 	db, err := r.db.DB()
 	if err != nil {
@@ -282,9 +280,14 @@ func NewHandlingEventRepository(db *gorm.DB) cargo.HandlingEventRepository {
 }
 
 func (r *handlingEventRepository) Store(e cargo.HandlingEvent) {
-	res := r.db.Create(&e)
-	if err := res.Error; err != nil {
-		panic(fmt.Errorf("failed to create handling event: %w", err))
+	db, err := r.db.DB()
+	if err != nil {
+		panic(fmt.Errorf("failed to retrieve db instance: %w", err))
+	}
+
+	_, err = db.Exec(sqlInsertHandlingEvent, e.TrackingID, e.ActivityID, e.HandlingHistoryRefer)
+	if err != nil {
+		panic(fmt.Errorf("failed to insert handling event: %w", err))
 	}
 }
 

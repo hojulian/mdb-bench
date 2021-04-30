@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -24,6 +23,32 @@ import (
 type DatabaseType string
 
 var (
+	CargoTables = []string{
+		"cargos",
+		"handling_histories",
+		"handling_events",
+		"handling_activities",
+		"route_specifications",
+		"itineraries",
+		"deliveries",
+		"legs",
+	}
+	LocationTables = []string{
+		"locations",
+	}
+	VoyageTables = []string{
+		"voyages",
+		"carrier_movements",
+		"schedules",
+		"locations",
+	}
+	HandlingEventTables = []string{
+		"voyages",
+		"carrier_movements",
+		"schedules",
+		"locations",
+	}
+
 	DatabaseTypeInMem        DatabaseType = "inmem"
 	DatabaseTypeMySQL        DatabaseType = "mysql"
 	DatabaseTypeMySQLCluster DatabaseType = "mysql-cluster"
@@ -34,13 +59,129 @@ var (
 	}
 )
 
-func NewCargoRepository(databaseType DatabaseType, params map[string]string) (cargo.Repository, error) {
-	switch databaseType {
-	case DatabaseTypeInMem:
-		return inmem.NewCargoRepository(), nil
+func NewInMemCargoRepository() cargo.Repository {
+	return inmem.NewCargoRepository()
+}
 
-	case DatabaseTypeMySQL:
-		db, err := mySQLDB(
+func NewMySQLCargoRepository(params map[string]string, cluster bool) (cargo.Repository, error) {
+	db, err := mysqlGorm(params, cluster)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+	return mysqldb.NewCargoRepository(db), nil
+}
+
+// Required tables:
+// "cargos",
+// "handling_histories",
+// "handling_events",
+// "handling_activities",
+// "route_specifications",
+// "itineraries",
+// "deliveries",
+// "legs",
+func NewMicroDBCargoRepository(c *client.Client) cargo.Repository {
+	return microdb.NewCargoRepository(c)
+}
+
+func NewInMemLocationRepository() location.Repository {
+	return inmem.NewLocationRepository()
+}
+
+func NewMySQLLocationRepository(params map[string]string, cluster bool) (location.Repository, error) {
+	withDefaults, err := strconv.ParseBool(params["DB_DEFAULTS"])
+	if err != nil {
+		return nil, fmt.Errorf("invalid value for DB_DEFAULTS: %w, must be bool", err)
+	}
+
+	db, err := mysqlGorm(params, cluster)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+	return mysqldb.NewLocationRepository(db, withDefaults), nil
+}
+
+// Required tables:
+// "locations",
+func NewMicroDBLocationRepository(c *client.Client) location.Repository {
+	return microdb.NewLocationRepository(c)
+}
+
+func NewInMemVoyageRepository() voyage.Repository {
+	return inmem.NewVoyageRepository()
+}
+
+func NewMySQLVoyageRepository(params map[string]string, cluster bool) (voyage.Repository, error) {
+	withDefaults, err := strconv.ParseBool(params["DB_DEFAULTS"])
+	if err != nil {
+		return nil, fmt.Errorf("invalid value for DB_DEFAULTS: %w, must be bool", err)
+	}
+
+	db, err := mysqlGorm(params, cluster)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+	return mysqldb.NewVoyageRepository(db, withDefaults), nil
+}
+
+// Required tables:
+// "voyages",
+// "carrier_movements",
+// "schedules",
+// "locations",
+func NewMicroDBVoyageRepository(c *client.Client) voyage.Repository {
+	return microdb.NewVoyageRepository(c)
+}
+
+func NewInMemHandlingEventRepository() cargo.HandlingEventRepository {
+	return inmem.NewHandlingEventRepository()
+}
+
+func NewMySQLHandlingEventRepository(params map[string]string, cluster bool) (cargo.HandlingEventRepository, error) {
+	db, err := mysqlGorm(params, cluster)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+	return mysqldb.NewHandlingEventRepository(db), nil
+}
+
+// Required tables:
+// "voyages",
+// "carrier_movements",
+// "schedules",
+// "locations",
+func NewMicroDBHandlingEventRepository(c *client.Client) cargo.HandlingEventRepository {
+	return microdb.NewHandlingEventRepository(c)
+}
+
+func mysqlGorm(params map[string]string, cluster bool) (*gorm.DB, error) {
+	var db *gorm.DB
+	var err error
+
+	if cluster {
+		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse number of nodes: %w", err)
+		}
+
+		dsns := make([]string, 0, int(nodes))
+		for i := 0; i < int(nodes); i++ {
+			dsn := mysqlConnectionCfg(
+				params[fmt.Sprintf("MYSQL_HOST_%d", i)],
+				params[fmt.Sprintf("MYSQL_PORT_%d", i)],
+				params["MYSQL_USER"],
+				params["MYSQL_PASSWORD"],
+				params["MYSQL_DATABASE"],
+			)
+			dsns = append(dsns, dsn)
+		}
+
+		db, err = mysqlDBCluster(dsns...)
+		if err != nil {
+			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
+		}
+	} else {
+		db, err = mysqlDB(
 			params["MYSQL_HOST"],
 			params["MYSQL_PORT"],
 			params["MYSQL_USER"],
@@ -50,241 +191,13 @@ func NewCargoRepository(databaseType DatabaseType, params map[string]string) (ca
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect to database: %w", err)
 		}
-		return mysqldb.NewCargoRepository(db), nil
-
-	case DatabaseTypeMySQLCluster:
-		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse number of nodes: %w", err)
-		}
-
-		dsns := make([]string, 0, int(nodes))
-		for i := 0; i < int(nodes); i++ {
-			dsn := mySQLConnectionCfg(
-				os.Getenv(fmt.Sprintf("MYSQL_HOST_%d", i)),
-				os.Getenv(fmt.Sprintf("MYSQL_PORT_%d", i)),
-				params["MYSQL_USER"],
-				params["MYSQL_PASSWORD"],
-				params["MYSQL_DATABASE"],
-			)
-			dsns = append(dsns, dsn)
-		}
-
-		db, err := mySQLDBCluster(dsns...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
-		}
-		return mysqldb.NewCargoRepository(db), nil
-
-	case DatabaseTypeMicroDB:
-		_, err := microDB(
-			params["NATS_HOST"],
-			params["NATS_PORT"],
-			params["NATS_CLIENT_ID"],
-			params["NATS_CLUSTER_ID"],
-			"cargos",
-			"handling_histories",
-			"handling_events",
-			"handling_activities",
-			"route_specifications",
-			"itineraries",
-			"deliveries",
-			"legs",
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connec to database: %w", err)
-		}
 	}
 
-	return nil, fmt.Errorf("unsupported database type")
+	return db, nil
 }
 
-func NewLocationRepository(databaseType DatabaseType, params map[string]string) (location.Repository, error) {
-	withDefaults, _ := strconv.ParseBool(params["DB_DEFAULTS"])
-
-	switch databaseType {
-	case DatabaseTypeInMem:
-		return inmem.NewLocationRepository(), nil
-
-	case DatabaseTypeMySQL:
-		db, err := mySQLDB(
-			params["MYSQL_HOST"],
-			params["MYSQL_PORT"],
-			params["MYSQL_USER"],
-			params["MYSQL_PASSWORD"],
-			params["MYSQL_DATABASE"],
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database: %w", err)
-		}
-		return mysqldb.NewLocationRepository(db, withDefaults), nil
-
-	case DatabaseTypeMySQLCluster:
-		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse number of nodes: %w", err)
-		}
-
-		dsns := make([]string, 0, int(nodes))
-		for i := 0; i < int(nodes); i++ {
-			dsn := mySQLConnectionCfg(
-				os.Getenv(fmt.Sprintf("MYSQL_HOST_%d", i)),
-				os.Getenv(fmt.Sprintf("MYSQL_PORT_%d", i)),
-				params["MYSQL_USER"],
-				params["MYSQL_PASSWORD"],
-				params["MYSQL_DATABASE"],
-			)
-			dsns = append(dsns, dsn)
-		}
-
-		db, err := mySQLDBCluster(dsns...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
-		}
-		return mysqldb.NewLocationRepository(db, withDefaults), nil
-
-	case DatabaseTypeMicroDB:
-		_, err := microDB(
-			params["NATS_HOST"],
-			params["NATS_PORT"],
-			params["NATS_CLIENT_ID"],
-			params["NATS_CLUSTER_ID"],
-			"locations",
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connec to database: %w", err)
-		}
-	}
-
-	return nil, fmt.Errorf("unsupported database type")
-}
-
-func NewVoyageRepository(databaseType DatabaseType, params map[string]string) (voyage.Repository, error) {
-	withDefaults, _ := strconv.ParseBool(params["DB_DEFAULTS"])
-
-	switch databaseType {
-	case DatabaseTypeInMem:
-		return inmem.NewVoyageRepository(), nil
-
-	case DatabaseTypeMySQL:
-		db, err := mySQLDB(
-			params["MYSQL_HOST"],
-			params["MYSQL_PORT"],
-			params["MYSQL_USER"],
-			params["MYSQL_PASSWORD"],
-			params["MYSQL_DATABASE"],
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database: %w", err)
-		}
-		return mysqldb.NewVoyageRepository(db, withDefaults), nil
-
-	case DatabaseTypeMySQLCluster:
-		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse number of nodes: %w", err)
-		}
-
-		dsns := make([]string, 0, int(nodes))
-		for i := 0; i < int(nodes); i++ {
-			dsn := mySQLConnectionCfg(
-				os.Getenv(fmt.Sprintf("MYSQL_HOST_%d", i)),
-				os.Getenv(fmt.Sprintf("MYSQL_PORT_%d", i)),
-				params["MYSQL_USER"],
-				params["MYSQL_PASSWORD"],
-				params["MYSQL_DATABASE"],
-			)
-			dsns = append(dsns, dsn)
-		}
-
-		db, err := mySQLDBCluster(dsns...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
-		}
-		return mysqldb.NewVoyageRepository(db, withDefaults), nil
-
-	case DatabaseTypeMicroDB:
-		_, err := microDB(
-			params["NATS_HOST"],
-			params["NATS_PORT"],
-			params["NATS_CLIENT_ID"],
-			params["NATS_CLUSTER_ID"],
-			"voyages",
-			"carrier_movements",
-			"schedules",
-			"locations",
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connec to database: %w", err)
-		}
-	}
-
-	return nil, fmt.Errorf("unsupported database type")
-}
-
-func NewHandlingEventRepository(databaseType DatabaseType, params map[string]string) (cargo.HandlingEventRepository, error) {
-	switch databaseType {
-	case DatabaseTypeInMem:
-		return inmem.NewHandlingEventRepository(), nil
-
-	case DatabaseTypeMySQL:
-		db, err := mySQLDB(
-			params["MYSQL_HOST"],
-			params["MYSQL_PORT"],
-			params["MYSQL_USER"],
-			params["MYSQL_PASSWORD"],
-			params["MYSQL_DATABASE"],
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database: %w", err)
-		}
-		return mysqldb.NewHandlingEventRepository(db), nil
-
-	case DatabaseTypeMySQLCluster:
-		nodes, err := strconv.ParseInt(params["MYSQL_NODES"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse number of nodes: %w", err)
-		}
-
-		dsns := make([]string, 0, int(nodes))
-		for i := 0; i < int(nodes); i++ {
-			dsn := mySQLConnectionCfg(
-				os.Getenv(fmt.Sprintf("MYSQL_HOST_%d", i)),
-				os.Getenv(fmt.Sprintf("MYSQL_PORT_%d", i)),
-				params["MYSQL_USER"],
-				params["MYSQL_PASSWORD"],
-				params["MYSQL_DATABASE"],
-			)
-			dsns = append(dsns, dsn)
-		}
-
-		db, err := mySQLDBCluster(dsns...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to database cluster: %w", err)
-		}
-		return mysqldb.NewHandlingEventRepository(db), nil
-
-	case DatabaseTypeMicroDB:
-		_, err := microDB(
-			params["NATS_HOST"],
-			params["NATS_PORT"],
-			params["NATS_CLIENT_ID"],
-			params["NATS_CLUSTER_ID"],
-			"voyages",
-			"carrier_movements",
-			"schedules",
-			"locations",
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connec to database: %w", err)
-		}
-	}
-
-	return nil, fmt.Errorf("unsupported database type")
-}
-
-func mySQLDB(host, port, user, password, database string) (*gorm.DB, error) {
-	dsn := mySQLConnectionCfg(host, port, user, password, database)
+func mysqlDB(host, port, user, password, database string) (*gorm.DB, error) {
+	dsn := mysqlConnectionCfg(host, port, user, password, database)
 	db, err := gorm.Open(mysqld.Open(dsn), defaultGormConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database connection: %w", err)
@@ -294,7 +207,7 @@ func mySQLDB(host, port, user, password, database string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func mySQLConnectionCfg(host, port, user, password, database string) string {
+func mysqlConnectionCfg(host, port, user, password, database string) string {
 	mCfg := mysql.NewConfig()
 	mCfg.Net = "tcp"
 	mCfg.Addr = fmt.Sprintf("%s:%s", host, port)
@@ -313,7 +226,7 @@ func configureGormDB(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func mySQLDBCluster(dsn ...string) (*gorm.DB, error) {
+func mysqlDBCluster(dsn ...string) (*gorm.DB, error) {
 	if len(dsn) == 0 {
 		return nil, fmt.Errorf("require at least 1 node in cluster")
 	}
@@ -342,16 +255,4 @@ func mySQLDBCluster(dsn ...string) (*gorm.DB, error) {
 	)
 	db = configureGormDB(db)
 	return db, nil
-}
-
-func microDB(natsHost, natsPort, natsClientID, natsClusterID string, tables ...string) (*client.Client, error) {
-	if err := microdb.LoadDataOrigins("dataorigin.yaml"); err != nil {
-		return nil, fmt.Errorf("failed to load data origins: %w", err)
-	}
-
-	c, err := client.Connect(natsHost, natsPort, natsClientID, natsClusterID, tables...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to microdb: %w", err)
-	}
-	return c, nil
 }

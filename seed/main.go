@@ -48,7 +48,7 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
 	// Create repos
-	cargos, locations, _, handlingEvents, err := repos(string(database.DatabaseTypeMySQL))
+	cargos, locations, _, handlingEvents, err := repos()
 	if err != nil {
 		panic(fmt.Errorf("failed to create repos: %w", err))
 	}
@@ -79,8 +79,7 @@ func envString(env, fallback string) string {
 	return e
 }
 
-func repos(databaseType string) (cargo.Repository, location.Repository, voyage.Repository, cargo.HandlingEventRepository, error) {
-	t := database.DatabaseType(databaseType)
+func repos() (cargo.Repository, location.Repository, voyage.Repository, cargo.HandlingEventRepository, error) {
 	params := map[string]string{
 		"MYSQL_HOST":     envString("MYSQL_HOST", "127.0.0.1"),
 		"MYSQL_PORT":     envString("MYSQL_PORT", "3306"),
@@ -89,24 +88,24 @@ func repos(databaseType string) (cargo.Repository, location.Repository, voyage.R
 		"MYSQL_DATABASE": envString("MYSQL_DATABASE", "test"),
 	}
 
-	cargos, err := database.NewCargoRepository(t, params)
+	cargos, err := database.NewMySQLCargoRepository(params, false)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to creat cargos repo: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to create cargos repo: %w", err)
 	}
 
-	locations, err := database.NewLocationRepository(t, params)
+	locations, err := database.NewMySQLLocationRepository(params, false)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to creat locations repo: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to create locations repo: %w", err)
 	}
 
-	voyages, err := database.NewVoyageRepository(t, params)
+	voyages, err := database.NewMySQLVoyageRepository(params, false)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to creat voyages repo: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to create voyages repo: %w", err)
 	}
 
-	handlingEvents, err := database.NewHandlingEventRepository(t, params)
+	handlingEvents, err := database.NewMySQLHandlingEventRepository(params, false)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("failed to creat handling events repo: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("failed to create handling events repo: %w", err)
 	}
 
 	return cargos, locations, voyages, handlingEvents, nil

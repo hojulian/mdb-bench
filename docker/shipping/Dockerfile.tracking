@@ -6,7 +6,7 @@ RUN mkdir /build
 ADD . /build/
 WORKDIR /build
 
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags "-extldflags -static" -o trackingd ./shipping/cmd/trackingd/*.go
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags "-extldflags -static" --tags "sqlite_unlock_notify" -o trackingd ./shipping/cmd/trackingd/*.go
 
 # Build image
 FROM alpine:latest
